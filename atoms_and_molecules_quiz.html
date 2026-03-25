@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚛️ Atoms & Molecules Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0c29;
+    --card: #1e1b4b;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    padding: 20px;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float linear infinite;
+    opacity: 0.15;
+  }
+  @keyframes float {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.15; }
+    90% { opacity: 0.15; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 720px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* START SCREEN */
+  .start-card {
+    background: rgba(30, 27, 75, 0.9);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 60px rgba(124, 58, 237, 0.2);
+  }
+
+  .atom-icon {
+    font-size: 80px;
+    animation: spin 8s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .start-card h1 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #a78bfa, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 16px 0 8px;
+  }
+
+  .start-card p { color: var(--muted); font-size: 1.05rem; margin-bottom: 32px; }
+
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .stat-badge {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #a78bfa;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 16px 48px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* QUIZ SCREEN */
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+  .progress-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4);
+    border-radius: 50px;
+    transition: width 0.4s ease;
+  }
+
+  .score-badge {
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #a78bfa;
+    white-space: nowrap;
+  }
+
+  .timer-badge {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #67e8f9;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+  }
+  .timer-badge.urgent { 
+    color: #fca5a5; 
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.15);
+    animation: pulse 0.5s ease infinite alternate;
+  }
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
+
+  .question-card {
+    background: rgba(30, 27, 75, 0.9);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 24px;
+    padding: 36px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #a78bfa;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: translateY(-1px);
+  }
+  .option-btn .opt-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .option-btn.correct {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--green);
+    color: #6ee7b7;
+  }
+  .option-btn.correct .opt-letter { background: var(--green); color: white; }
+  .option-btn.wrong {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--red);
+    color: #fca5a5;
+  }
+  .option-btn.wrong .opt-letter { background: var(--red); color: white; }
+
+  .feedback-box {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: none;
+    animation: slideIn 0.2s ease;
+  }
+  .feedback-box.show { display: flex; align-items: center; gap: 10px; }
+  .feedback-box.correct-fb { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+  .feedback-box.wrong-fb { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+
+  .next-btn-wrap { text-align: right; margin-top: 20px; }
+
+  /* RESULT SCREEN */
+  .result-card {
+    background: rgba(30, 27, 75, 0.9);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 60px rgba(124, 58, 237, 0.2);
+  }
+
+  .trophy { font-size: 80px; animation: bounce 1s ease infinite alternate; display: inline-block; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+
+  .result-card h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 16px 0 8px;
+    background: linear-gradient(90deg, #a78bfa, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .final-score {
+    font-size: 4rem;
+    font-weight: 900;
+    margin: 20px 0;
+    line-height: 1;
+  }
+  .score-fraction { color: var(--muted); font-size: 2rem; }
+
+  .stars { font-size: 2.5rem; margin: 12px 0 24px; letter-spacing: 4px; }
+
+  .result-message { color: var(--muted); font-size: 1.05rem; margin-bottom: 32px; line-height: 1.6; }
+
+  .review-grid {
+    display: grid;
+    gap: 10px;
+    text-align: left;
+    margin-bottom: 32px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .review-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+  }
+  .review-item .ri-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .review-item .ri-q { font-weight: 700; color: var(--text); }
+  .review-item .ri-a { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+
+  .btn-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-secondary {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.14); transform: translateY(-2px); }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+    z-index: 999;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 520px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .start-card, .result-card, .question-card { padding: 28px 20px; }
+    .start-card h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<script>
+  const symbols = ['⚛','🔬','⚡','🧪','🔵','🟣','⭕'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = symbols[i % symbols.length];
+    p.style.cssText = `left:${Math.random()*100}%;font-size:${Math.random()*20+10}px;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s`;
+    document.body.appendChild(p);
+  }
+</script>
+
+<div class="wrapper">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="startScreen">
+    <div class="start-card">
+      <div class="atom-icon">⚛️</div>
+      <h1>Atoms &amp; Molecules</h1>
+      <p>Test your knowledge of atoms, molecules, elements, and compounds!</p>
+      <div class="stats-row">
+        <div class="stat-badge">📝 15 Questions</div>
+        <div class="stat-badge">⏱️ 20s Per Question</div>
+        <div class="stat-badge">🏆 Score &amp; Review</div>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">🚀 Start Quiz!</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-header">
+      <div class="progress-wrap">
+        <div class="progress-label">Progress — <span id="progressLabel">1 / 15</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-badge">⭐ Score: <span id="liveScore">0</span></div>
+      <div class="timer-badge" id="timerBadge">⏱️ 20</div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="question-num" id="questionNum">Question 1 of 15</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="feedback-box" id="feedbackBox"></div>
+      <div class="next-btn-wrap">
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none; padding:12px 32px; font-size:0.95rem;">
+          Next →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="resultScreen">
+    <div class="result-card">
+      <div class="trophy" id="trophyEmoji">🏆</div>
+      <h2 id="resultTitle">Quiz Complete!</h2>
+      <div class="final-score">
+        <span id="finalScore" style="color:#a78bfa">0</span>
+        <span class="score-fraction"> / 15</span>
+      </div>
+      <div class="stars" id="starsDisplay">⭐⭐⭐</div>
+      <p class="result-message" id="resultMessage"></p>
+      <div class="review-grid" id="reviewGrid"></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="startQuiz()">🔄 Try Again</button>
+        <button class="btn btn-secondary btn-primary" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)" onclick="showScreen('startScreen')">🏠 Home</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  { q: "All matter is made of what?", opts: ["Energy","Atoms","Electrons","Compounds"], ans: 1 },
+  { q: "The positive particles of an atom are…", opts: ["Electrons","Positrons","Neutrons","Protons"], ans: 3 },
+  { q: "Particles in an atom that are neutral and have no charge are…", opts: ["Negatrons","Electrons","Neutrons","Protons"], ans: 2 },
+  { q: "The particles found in the nucleus of an atom are…", opts: ["Neutrons and Electrons","Electrons only","Protons and Neutrons","Protons and Electrons"], ans: 2 },
+  { q: "Neutrons are __________ particles.", opts: ["Negative","Positive","Neutral","Cows 🐄"], ans: 2 },
+  { q: "The positive particles of an atom are called __________.", opts: ["Electrons","Atoms","Neutrons","Protons"], ans: 3 },
+  { q: "The smallest part of an element is known as the…", opts: ["Periodic Table","Atom","Group","Period"], ans: 1 },
+  { q: "Which term defines a substance formed by combining elements in fixed amounts?", opts: ["Atom","Compound","Element","Molecule"], ans: 1 },
+  { q: "Which term defines any substance that CANNOT be broken down into a simpler substance?", opts: ["Atom","Molecule","Element","Compound"], ans: 2 },
+  { q: "What are the basic building blocks for all matter?", opts: ["Atoms","Elements","Compounds","Chemicals"], ans: 0 },
+  { q: "What do we call a chemical substance made up of 2 or more different types of atoms bonded together?", opts: ["Formula","Atom","Subscript","Compound"], ans: 3 },
+  { q: "All __________ are made up of two or more atoms bonded together.", opts: ["Atoms","Molecules","Electrons","Elements"], ans: 1 },
+  { q: "When __________ form, elements lose their individual chemical properties and take on new ones.", opts: ["Compounds","Atoms","Subscripts","Formulas"], ans: 0 },
+  { q: "Which of these items is made up of one or more molecules?", opts: ["Gold","Hydrogen","Salt","Neon"], ans: 2 },
+  { q: "Elements are made of…", opts: ["Many types of atoms","The periodic table","One type of atom","Molecules"], ans: 2 }
+];
+
+const letters = ['A','B','C','D'];
+let current = 0, score = 0, timer = null, timeLeft = 20;
+let userAnswers = [];
+let answered = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  current = 0; score = 0; userAnswers = [];
+  showScreen('quizScreen');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('questionNum').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('progressLabel').textContent = `${current + 1} / ${questions.length}`;
+  document.getElementById('progressFill').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('liveScore').textContent = score;
+
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span> ${opt}`;
+    btn.onclick = () => selectAnswer(i, btn);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedbackBox').className = 'feedback-box';
+  document.getElementById('feedbackBox').textContent = '';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 20;
+  updateTimerUI();
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      timeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const badge = document.getElementById('timerBadge');
+  badge.textContent = `⏱️ ${timeLeft}`;
+  badge.className = timeLeft <= 5 ? 'timer-badge urgent' : 'timer-badge';
+}
+
+function timeUp() {
+  if (answered) return;
+  answered = true;
+  userAnswers.push({ q: current, chosen: -1, correct: false });
+  disableOptions();
+  highlightCorrect();
+  showFeedback(false, "⏰ Time's up! The correct answer is highlighted.");
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timer);
+
+  const correct = questions[current].ans === idx;
+  userAnswers.push({ q: current, chosen: idx, correct });
+  if (correct) score++;
+
+  disableOptions();
+
+  const btns = document.querySelectorAll('.option-btn');
+  if (correct) {
+    btn.classList.add('correct');
+    showFeedback(true, '✅ Correct! Great job!');
+  } else {
+    btn.classList.add('wrong');
+    highlightCorrect();
+    showFeedback(false, `❌ Not quite! The correct answer is highlighted.`);
+  }
+
+  document.getElementById('liveScore').textContent = score;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function disableOptions() {
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+}
+
+function highlightCorrect() {
+  const correctIdx = questions[current].ans;
+  document.querySelectorAll('.option-btn')[correctIdx].classList.add('correct');
+}
+
+function showFeedback(correct, msg) {
+  const fb = document.getElementById('feedbackBox');
+  fb.textContent = msg;
+  fb.className = `feedback-box show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    clearInterval(timer);
+    showResults();
+  }
+}
+
+function showResults() {
+  showScreen('resultScreen');
+  document.getElementById('finalScore').textContent = score;
+
+  const pct = score / questions.length;
+  let trophy, title, msg, stars;
+
+  if (pct === 1) {
+    trophy = '🏆'; title = 'Perfect Score!'; stars = '⭐⭐⭐⭐⭐';
+    msg = "Incredible! You aced every single question. You're an Atoms & Molecules master! 🎉";
+  } else if (pct >= 0.8) {
+    trophy = '🥇'; title = 'Excellent Work!'; stars = '⭐⭐⭐⭐';
+    msg = "Outstanding performance! You really know your atoms and molecules. Just a couple more to review!";
+  } else if (pct >= 0.6) {
+    trophy = '🥈'; title = 'Good Job!'; stars = '⭐⭐⭐';
+    msg = "Solid effort! You've got a good grasp of the basics. Review the missed questions and you'll nail it next time!";
+  } else if (pct >= 0.4) {
+    trophy = '🥉'; title = 'Keep Practicing!'; stars = '⭐⭐';
+    msg = "You're on your way! Atoms and molecules can be tricky — review the material and try again!";
+  } else {
+    trophy = '📚'; title = 'Keep Studying!'; stars = '⭐';
+    msg = "Don't give up! Review the material on atoms and molecules and come back stronger!";
+  }
+
+  document.getElementById('trophyEmoji').textContent = trophy;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('starsDisplay').textContent = stars;
+  document.getElementById('resultMessage').textContent = msg;
+
+  const grid = document.getElementById('reviewGrid');
+  grid.innerHTML = '';
+  userAnswers.forEach(ua => {
+    const q = questions[ua.q];
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    const chosenText = ua.chosen >= 0 ? q.opts[ua.chosen] : 'No answer (timed out)';
+    const correctText = q.opts[q.ans];
+    div.innerHTML = `
+      <span class="ri-icon">${ua.correct ? '✅' : '❌'}</span>
+      <div>
+        <div class="ri-q">Q${ua.q + 1}: ${q.q}</div>
+        <div class="ri-a">
+          ${ua.correct ? `Your answer: <strong>${chosenText}</strong>` : `You answered: <strong>${chosenText}</strong> — Correct: <strong>${correctText}</strong>`}
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+
+  if (pct >= 0.8) spawnConfetti();
+}
+
+function spawnConfetti() {
+  const colors = ['#a78bfa','#06b6d4','#f59e0b','#10b981','#f472b6','#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*2+1.5}s;animation-delay:${Math.random()*1.5}s;border-radius:${Math.random()>0.5?'50%':'2px'};width:${Math.random()*8+6}px;height:${Math.random()*8+6}px`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
+}
+</script>
+</body>
+</html>
